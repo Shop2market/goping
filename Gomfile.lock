@@ -1,0 +1,4 @@
+gom 'github.com/onsi/ginkgo/ginkgo', :commit => 'aa7870df5380d9da6904a29ba19e208694e0d0c1', :tag => 'v1.1.0'
+gom 'github.com/onsi/gomega', :commit => 'a78ae492d53aad5a7a232d0d0462c14c400e3ee7', :tag => 'v1.0'
+gom 'gopkg.in/mgo.v2/bson', :commit => 'c9fd3712fbf3e92924c974dce16da2d322508fe2'
+gom 'github.com/go-sql-driver/mysql', :commit => 'a732e14c62dde3285440047bba97581bc472ae18', :tag => 'v1.2'
