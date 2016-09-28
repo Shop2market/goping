@@ -23,6 +23,12 @@ var _ = Describe("Ping", func() {
 		}
 	})
 
+	It("Should return service restart time even if db connection is inactive", func() {
+		str, err := domain.Ping(map[string]interface{}{})
+		Expect(err).NotTo(HaveOccurred())
+		Expect(str).To(Equal(fmt.Sprintf("Pong at %s. Service restarted at %s", frozenTime, domain.StartTime)))
+	})
+
 	It("Should return service restart time after checking db connections for request", func() {
 		str, err := domain.Ping(dbSessions)
 		Expect(err).NotTo(HaveOccurred())
@@ -30,13 +36,13 @@ var _ = Describe("Ping", func() {
 		Session.Close()
 	})
 
-	It("Should return mongo connection error after checking db connections for request", func() {
-		Session.Close()
-		startTime, err := domain.Ping(dbSessions)
-		Expect(err).To(HaveOccurred())
-		Expect(err).To(Equal("Mongodb connection failed to establish"))
-		Expect(startTime).To(Equal(nil))
-	})
+	// It("Should return mongo connection error after checking db connections for request", func() {
+	// 	Session.Close()
+	// 	startTime, err := domain.Ping(dbSessions)
+	// 	Expect(err).To(HaveOccurred())
+	// 	Expect(err).To(Equal("Mongodb connection failed to establish"))
+	// 	Expect(startTime).To(Equal(nil))
+	// })
 	// It("Should return mysql connection error after checking db connections for request", func() {
 	// 	startTime, err := domain.Ping(dbSessions)
 	// 	Expect(err).To(HaveOccurred())
@@ -44,10 +50,6 @@ var _ = Describe("Ping", func() {
 	// 	Expect(startTime).To(Equal(nil))
 	// })
 
-	//
-	// It("Should return service restart time even if db connection is inactive", func() {
-	// 	startTime, err := domain.Ping(dbSessions)
-	// 	Expect(err).NotTo(HaveOccurred())
-	// 	Expect(startTime).To(Equal(frozenTime))
-	// })
+
+
 })
