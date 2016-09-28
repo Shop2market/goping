@@ -8,10 +8,14 @@ import (
 	"gopkg.in/mgo.v2"
 )
 
-var startTime time.Time
+var StartTime time.Time
+
+//for stubbing
+type TimeFinder func() time.Time
+var Now TimeFinder = time.Now
 
 func init() {
-	startTime = time.Now()
+	StartTime = Now()
 }
 
 // Ping - reports service start time and checks db connections
@@ -21,7 +25,7 @@ func Ping(dbSessions map[string]interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("Pong at %s. Service restarted at %s", time.Now(), startTime), nil
+	return fmt.Sprintf("Pong at %s. Service restarted at %s", Now(), StartTime), nil
 }
 
 func getConnections(dbSessions map[string]interface{}) []dbSession {
@@ -40,6 +44,7 @@ func getConnections(dbSessions map[string]interface{}) []dbSession {
 
 func pingConnections(dbSessions []dbSession) error {
 	for _, session := range dbSessions {
+
 		err := session.Ping()
 		if err != nil {
 			return err
@@ -51,21 +56,3 @@ func pingConnections(dbSessions []dbSession) error {
 type dbSession interface {
 	Ping() error
 }
-
-// type mongoSession struct {
-// 	*mgo.Session
-// }
-//
-// type mysqlSession struct {
-// 	*sql.DB
-// }
-
-// func (mgo *mongoSession) ping() error {
-// 	err := mgo.Session.Ping()
-// 	return err
-// }
-//
-// func (msql *mysqlSession) ping() error {
-// 	err := msql.DB.Ping()
-// 	return err
-// }

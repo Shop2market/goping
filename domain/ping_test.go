@@ -1,49 +1,53 @@
 package domain_test
 
 import (
-	"time"
-
 	"github.com/Shop2market/goping/domain"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"gopkg.in/mgo.v2"
+	"time"
+	"fmt"
 )
 
-type testType struct{}
-
-func (test *testType) Ping() error {
-	return nil
-}
-
 var _ = Describe("Ping", func() {
+	var Session *mgo.Session
+	Session, _ = mgo.Dial("127.0.0.1")
 	frozenTime := time.Date(2010, time.September, 26, 23, 0, 0, 0, time.Local)
-	frozenTimePtr := &frozenTime
 	dbSessions := map[string]interface{}{
-		"mongo": &testType{},
+		"mongo": Session,
 	}
 
-	It("Should return service restart time after checking db connections for request", func() {
-		startTime, err := domain.Ping(dbSessions)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(startTime).To(Equal(frozenTime))
+	BeforeEach(func(){
+		domain.Now = func() time.Time {
+			return frozenTime
+		}
 	})
 
-	It("Should return mysql connection error after checking db connections for request", func() {
-		startTime, err := domain.Ping(dbSessions)
-		Expect(err).To(HaveOccurred())
-		Expect(err).To(Equal("Mysql connection failed to establish"))
-		Expect(startTime).To(Equal(nil))
+	It("Should return service restart time after checking db connections for request", func() {
+		str, err := domain.Ping(dbSessions)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(str).To(Equal(fmt.Sprintf("Pong at %s. Service restarted at %s", frozenTime, domain.StartTime)))
+		Session.Close()
 	})
 
 	It("Should return mongo connection error after checking db connections for request", func() {
+		Session.Close()
 		startTime, err := domain.Ping(dbSessions)
 		Expect(err).To(HaveOccurred())
 		Expect(err).To(Equal("Mongodb connection failed to establish"))
 		Expect(startTime).To(Equal(nil))
 	})
+	// It("Should return mysql connection error after checking db connections for request", func() {
+	// 	startTime, err := domain.Ping(dbSessions)
+	// 	Expect(err).To(HaveOccurred())
+	// 	Expect(err).To(Equal("Mysql connection failed to establish"))
+	// 	Expect(startTime).To(Equal(nil))
+	// })
 
-	It("Should return service restart time even if db connection is inactive", func() {
-		startTime, err := domain.Ping(dbSessions)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(startTime).To(Equal(frozenTime))
-	})
+	//
+	// It("Should return service restart time even if db connection is inactive", func() {
+	// 	startTime, err := domain.Ping(dbSessions)
+	// 	Expect(err).NotTo(HaveOccurred())
+	// 	Expect(startTime).To(Equal(frozenTime))
+	// })
 })
