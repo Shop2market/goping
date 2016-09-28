@@ -2,7 +2,6 @@ package domain
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -12,6 +11,7 @@ var StartTime time.Time
 
 //for stubbing
 type TimeFinder func() time.Time
+
 var Now TimeFinder = time.Now
 
 func init() {
@@ -19,13 +19,14 @@ func init() {
 }
 
 // Ping - reports service start time and checks db connections
-func Ping(dbSessions map[string]interface{}) (string, error) {
+func Ping(dbSessions map[string]interface{}) *pingResponse {
 	sessions := getConnections(dbSessions)
 	err := pingConnections(sessions)
+	reponse := &pingResponse{PongAt: Now(), RestartAt: StartTime}
 	if err != nil {
-		return "", err
+		reponse.Err = err
 	}
-	return fmt.Sprintf("Pong at %s. Service restarted at %s", Now(), StartTime), nil
+	return reponse
 }
 
 func getConnections(dbSessions map[string]interface{}) []dbSession {
@@ -55,4 +56,10 @@ func pingConnections(dbSessions []dbSession) error {
 
 type dbSession interface {
 	Ping() error
+}
+
+type pingResponse struct {
+	PongAt    time.Time `json:"Pong At",omitempty`
+	RestartAt time.Time `json:"Restart At",omitempty`
+	Err       error     `json:"Error",omitempty`
 }

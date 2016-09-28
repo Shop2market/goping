@@ -1,12 +1,12 @@
 package domain_test
 
 import (
+	"time"
+
 	"github.com/Shop2market/goping/domain"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"gopkg.in/mgo.v2"
-	"time"
-	"fmt"
 )
 
 var _ = Describe("Ping", func() {
@@ -17,22 +17,24 @@ var _ = Describe("Ping", func() {
 		"mongo": Session,
 	}
 
-	BeforeEach(func(){
+	BeforeEach(func() {
 		domain.Now = func() time.Time {
 			return frozenTime
 		}
 	})
 
 	It("Should return service restart time even if db connection is inactive", func() {
-		str, err := domain.Ping(map[string]interface{}{})
-		Expect(err).NotTo(HaveOccurred())
-		Expect(str).To(Equal(fmt.Sprintf("Pong at %s. Service restarted at %s", frozenTime, domain.StartTime)))
+		response := domain.Ping(map[string]interface{}{})
+		Expect(response.Err).NotTo(HaveOccurred())
+		Expect(response.PongAt).To(Equal(frozenTime))
+		Expect(response.RestartAt).To(Equal(domain.StartTime))
 	})
 
 	It("Should return service restart time after checking db connections for request", func() {
-		str, err := domain.Ping(dbSessions)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(str).To(Equal(fmt.Sprintf("Pong at %s. Service restarted at %s", frozenTime, domain.StartTime)))
+		response := domain.Ping(dbSessions)
+		Expect(response.Err).NotTo(HaveOccurred())
+		Expect(response.PongAt).To(Equal(frozenTime))
+		Expect(response.RestartAt).To(Equal(domain.StartTime))
 		Session.Close()
 	})
 
@@ -43,13 +45,11 @@ var _ = Describe("Ping", func() {
 	// 	Expect(err).To(Equal("Mongodb connection failed to establish"))
 	// 	Expect(startTime).To(Equal(nil))
 	// })
+
 	// It("Should return mysql connection error after checking db connections for request", func() {
 	// 	startTime, err := domain.Ping(dbSessions)
 	// 	Expect(err).To(HaveOccurred())
 	// 	Expect(err).To(Equal("Mysql connection failed to establish"))
 	// 	Expect(startTime).To(Equal(nil))
 	// })
-
-
-
 })
