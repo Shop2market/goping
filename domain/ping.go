@@ -59,7 +59,7 @@ type dbSession interface {
 }
 
 type pingResponse struct {
-	PongAt    time.Time `json:"Pong At",omitempty`
-	RestartAt time.Time `json:"Restart At",omitempty`
-	Err       error     `json:"Error",omitempty`
+	PongAt    time.Time `json:"Pong,omitempty"`
+	RestartAt time.Time `json:"StartTime,omitempty"`
+	Err       error     `json:"Error,omitempty"`
 }
