@@ -28,9 +28,9 @@ var _ = Describe("Goping", func() {
 			decoder := json.NewDecoder(resp.Body)
 			pingData := map[string]interface{}{}
 			Expect(decoder.Decode(&pingData)).NotTo(HaveOccurred())
-			Expect(pingData["Pong"]).NotTo(BeNil())
-			Expect(pingData["StartTime"]).NotTo(BeNil())
-			Expect(pingData["Error"]).To(BeNil())
+			Expect(pingData["pong"]).NotTo(BeNil())
+			Expect(pingData["started_at"]).NotTo(BeNil())
+			Expect(pingData["error"]).To(BeNil())
 		})
 	})
 })
